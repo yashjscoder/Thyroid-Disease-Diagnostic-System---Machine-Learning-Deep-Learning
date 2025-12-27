@@ -1,5 +1,7 @@
 # Thyroid Disease Classification Model
 
+### https://thyroid-ai-diagnostic.streamlit.app/
+
 ## 1. Project Overview
 
 This project focuses on building and evaluating machine learning classification models to predict thyroid disease status based on a publicly available medical dataset from the UCI Machine Learning Repository (Garavan Institute, Sydney). The goal is to establish a robust prediction baseline and identify the most critical clinical features driving the classification.
