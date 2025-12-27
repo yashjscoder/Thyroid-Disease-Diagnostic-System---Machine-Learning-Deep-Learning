@@ -3,66 +3,99 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 import joblib
+import os
 
 # 1. Page Configuration
-st.set_page_config(page_title="AI Thyroid Doctor", page_icon="⚕️", layout="centered")
+st.set_page_config(page_title="AI Thyroid Doctor", page_icon="⚕️", layout="wide")
 
-# 2. Load the Saved Model and Scaler
+# 2. Path Debugging & Asset Loading
+# This tells the app to look in the same folder as the script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, 'thyroid_model.json')
+scaler_path = os.path.join(BASE_DIR, 'scaler.joblib')
+
 @st.cache_resource
 def load_assets():
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        return None, None
+    
+    # Load XGBoost Model
     model = xgb.Booster()
-    model.load_model('thyroid_model.json')
-    scaler = joblib.load('scaler.joblib')
+    model.load_model(model_path)
+    
+    # Load Scaler
+    scaler = joblib.load(scaler_path)
     return model, scaler
 
-try:
-    model, scaler = load_assets()
-except:
-    st.error("⚠️ Model files not found! Make sure 'thyroid_model.json' and 'scaler.joblib' are in the same folder.")
+model, scaler = load_assets()
 
 # 3. UI Header
-st.title("⚕️ Thyroid Disease Detection System")
-st.write("Enter patient clinical data below for an AI-powered diagnosis.")
+st.title("⚕️ Virtual Thyroid Diagnostic System")
+st.write("Professional AI tool for thyroid risk assessment based on clinical markers.")
+
+if model is None:
+    st.error(f"⚠️ **Model Files Missing!**")
+    st.info(f"The app is looking in: `{BASE_DIR}`")
+    st.warning("Please ensure 'thyroid_model.json' and 'scaler.joblib' are in that exact folder.")
+    st.stop()
+
 st.divider()
 
 # 4. Input Form
-with st.form("prediction_form"):
-    col1, col2 = st.columns(2)
+with st.form("medical_form"):
+    st.subheader("Patient Clinical Data")
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        age = st.number_input("Age", min_value=1, max_value=120, value=30)
+        age = st.number_input("Age", min_value=1, max_value=100, value=35)
         sex = st.selectbox("Sex", options=[("Male", 1), ("Female", 2)], format_func=lambda x: x[0])[1]
-        tsh = st.number_input("TSH Level", value=1.5)
-        t3 = st.number_input("T3 Level", value=2.0)
-    
-    with col2:
-        tt4 = st.number_input("TT4 Level", value=100.0)
-        t4u = st.number_input("T4U Level", value=1.0)
-        fti = st.number_input("FTI Level", value=100.0)
-        on_thyroxine = st.selectbox("On Thyroxine?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+        on_thyroxine = st.selectbox("Currently on Thyroxine?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+        pregnant = st.selectbox("Is the patient pregnant?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
 
-    submit = st.form_submit_button("Generate Diagnosis")
+    with col2:
+        tsh = st.number_input("TSH Level (Measured)", value=1.5, format="%.4f")
+        t3 = st.number_input("T3 Level (Measured)", value=2.0, format="%.4f")
+        tt4 = st.number_input("TT4 Level (Measured)", value=100.0, format="%.4f")
+        tumor = st.selectbox("History of Tumors?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+
+    with col3:
+        t4u = st.number_input("T4U Level (Measured)", value=1.0, format="%.4f")
+        fti = st.number_input("FTI Level (Measured)", value=100.0, format="%.4f")
+        goitre = st.selectbox("Goitre Present?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+        psych = st.selectbox("Psychological Symptoms?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+
+    submit = st.form_submit_button("Run AI Diagnosis")
 
 # 5. Prediction Logic
 if submit:
-    # Prepare the raw data (Match the exact order of your training columns!)
-    # Note: You might need to add other 't/f' features as 0s if your model was trained on them
-    input_data = pd.DataFrame([[age, sex, tsh, t3, tt4, t4u, fti, on_thyroxine]], 
-                              columns=['age', 'sex', 'TSH', 'T3', 'TT4', 'T4U', 'FTI', 'on_thyroxine'])
+    # We must provide ALL 20 columns in the exact order the model was trained
+    # Defaulting rare medical conditions to 0 (False) to match the notebook features
+    data_dict = {
+        'age': [age], 'sex': [sex], 'on_thyroxine': [on_thyroxine],
+        'query_on_thyroxine': [0], 'on_antithyroid_medication': [0],
+        'pregnant': [pregnant], 'thyroid_surgery': [0], 'I131_treatment': [0],
+        'query_hypothyroid': [0], 'query_hyperthyroid': [0], 'lithium': [0],
+        'goitre': [goitre], 'tumor': [tumor], 'hypopituitary': [0], 'psych': [psych],
+        'TSH': [tsh], 'T3': [t3], 'TT4': [tt4], 'T4U': [t4u], 'FTI': [fti]
+    }
     
-    # Scale the numerical parts
-    numerical_cols = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
-    input_data[numerical_cols] = scaler.transform(input_data[numerical_cols])
+    input_df = pd.DataFrame(data_dict)
     
-    # Convert to DMatrix for XGBoost
-    dmatrix = xgb.DMatrix(input_data)
-    prediction = model.predict(dmatrix)[0]
+    # Scale numerical columns
+    num_cols = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
+    input_df[num_cols] = scaler.transform(input_df[num_cols])
+    
+    # XGBoost DMatrix
+    final_input = xgb.DMatrix(input_df)
+    prob = model.predict(final_input)[0]
 
-    # 6. Display Results
-    st.subheader("Results:")
-    if prediction > 0.5:
-        st.error(f"🚨 **High Risk Detected.** (Confidence: {prediction:.2%})")
-        st.write("The model suggests clinical signs of Thyroid disease. Please consult a specialist.")
+    # 6. Results Display
+    st.divider()
+    if prob > 0.5:
+        st.error(f"### Result: POSITIVE for Thyroid Disease")
+        st.write(f"Confidence Level: **{prob:.2%}**")
+        st.warning("Recommendation: Patient should undergo clinical blood work (Full Thyroid Panel) and consult an endocrinologist.")
     else:
-        st.success(f"✅ **Healthy / Low Risk.** (Confidence: {(1-prediction):.2%})")
-        st.write("Thyroid levels appear to be within the normal range based on the data provided.")
+        st.success(f"### Result: NEGATIVE (Healthy)")
+        st.write(f"Confidence Level: **{(1-prob):.2%}**")
+        st.info("The AI suggests thyroid function is within the normal range based on the provided inputs.")
