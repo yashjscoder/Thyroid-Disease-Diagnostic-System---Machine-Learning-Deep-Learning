@@ -43,16 +43,31 @@ def generate_pdf(age, sex, prob, result_text):
 
 # function to plot feature importance
 def plot_importance(model, input_df):
-    # Get feature importance scores from XGBoost
-    importance = model.get_score(importance_type='weight')
+    # Get feature importance
+    importance = model.get_score(importance_type='gain') # 'gain' is better for medical relevance
     
     # Sort and take top 10
     sorted_importance = dict(sorted(importance.items(), key=lambda item: item[1], reverse=True)[:10])
     
+    # Create the plot
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x=list(sorted_importance.values()), y=list(sorted_importance.keys()), ax=ax, palette='viridis')
-    plt.title("Top Factors Influencing This Diagnosis")
-    plt.xlabel("Impact Score")
+    
+    # Use a nice color palette
+    colors = sns.color_palette("Reds_r", n_colors=len(sorted_importance)) if max(sorted_importance.values()) > 0.5 else sns.color_palette("Blues_r", n_colors=len(sorted_importance))
+    
+    sns.barplot(
+        x=list(sorted_importance.values()), 
+        y=list(sorted_importance.keys()), 
+        ax=ax, 
+        palette="magma"
+    )
+    
+    plt.title("Key Diagnostic Drivers", fontsize=14, fontweight='bold')
+    plt.xlabel("Relative Importance (Model Gain)", fontsize=10)
+    plt.ylabel("Clinical Marker", fontsize=10)
+    plt.grid(axis='x', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
     return fig
 
 # 1. Page Configuration
