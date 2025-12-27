@@ -50,6 +50,7 @@ with st.form("medical_form"):
         age = st.number_input("Age", min_value=1, max_value=100, value=35)
         sex = st.selectbox("Sex", options=[("Male", 1), ("Female", 2)], format_func=lambda x: x[0])[1]
         on_thyroxine = st.selectbox("Currently on Thyroxine?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
+        sick = st.selectbox("Does the patient feel 'sick'?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
         pregnant = st.selectbox("Is the patient pregnant?", options=[("No", 0), ("Yes", 1)], format_func=lambda x: x[0])[1]
 
     with col2:
@@ -71,12 +72,27 @@ if submit:
     # We must provide ALL 20 columns in the exact order the model was trained
     # Defaulting rare medical conditions to 0 (False) to match the notebook features
     data_dict = {
-        'age': [age], 'sex': [sex], 'on_thyroxine': [on_thyroxine],
-        'query_on_thyroxine': [0], 'on_antithyroid_medication': [0],
-        'pregnant': [pregnant], 'thyroid_surgery': [0], 'I131_treatment': [0],
-        'query_hypothyroid': [0], 'query_hyperthyroid': [0], 'lithium': [0],
-        'goitre': [goitre], 'tumor': [tumor], 'hypopituitary': [0], 'psych': [psych],
-        'TSH': [tsh], 'T3': [t3], 'TT4': [tt4], 'T4U': [t4u], 'FTI': [fti]
+        'age': [age], 
+        'sex': [sex], 
+        'on_thyroxine': [on_thyroxine],
+        'query_on_thyroxine': [0], 
+        'on_antithyroid_medication': [0],
+        'sick': [sick],  # <--- Add this line here!
+        'pregnant': [pregnant], 
+        'thyroid_surgery': [0], 
+        'I131_treatment': [0],
+        'query_hypothyroid': [0], 
+        'query_hyperthyroid': [0], 
+        'lithium': [0],
+        'goitre': [goitre], 
+        'tumor': [tumor], 
+        'hypopituitary': [0], 
+        'psych': [psych],
+        'TSH': [tsh], 
+        'T3': [t3], 
+        'TT4': [tt4], 
+        'T4U': [t4u], 
+        'FTI': [fti]
     }
     
     input_df = pd.DataFrame(data_dict)
