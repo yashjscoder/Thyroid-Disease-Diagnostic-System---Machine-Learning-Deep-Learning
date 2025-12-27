@@ -16,7 +16,7 @@ This project focuses on building and evaluating machine learning classification 
 
 ## 2.B Screenshots
 
-![alt text](<Screenshot 2025-12-28 042408.png>) ![alt text](<Screenshot 2025-12-28 042425.png>) ![alt text](<Screenshot 2025-12-28 042414.png>) ![alt text](<Screenshot 2025-12-28 042326.png>)
+![alt text](<Screenshot 2025-12-28 042326.png>)![alt text](<Screenshot 2025-12-28 042408.png>) ![alt text](<Screenshot 2025-12-28 042425.png>) ![alt text](<Screenshot 2025-12-28 042414.png>) 
 
 ## 3. Data Source and Initial State
 
