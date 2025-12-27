@@ -5,6 +5,42 @@ import xgboost as xgb
 import joblib
 import os
 
+#001 -- adding codes for the pdf download functionality
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
+def generate_pdf(age, sex, prob, result_text):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    
+    # Header
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(100, 750, "AI THYROID DIAGNOSTIC REPORT")
+    p.line(100, 745, 500, 745)
+    
+    # Patient Info
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 710, f"Patient Age: {age}")
+    p.drawString(100, 690, f"Patient Sex: {'Male' if sex == 1 else 'Female'}")
+    
+    # Diagnosis Results
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(100, 650, "Diagnosis Results:")
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 630, f"AI Assessment: {result_text}")
+    p.drawString(100, 610, f"AI Confidence Score: {prob:.2%}")
+    
+    # Disclaimer
+    p.setFont("Helvetica-Oblique", 10)
+    p.drawString(100, 550, "Disclaimer: This is an AI-generated report for educational purposes.")
+    p.drawString(100, 535, "Please consult a professional medical doctor for clinical diagnosis.")
+    
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    return buffer
+
 # 1. Page Configuration
 st.set_page_config(page_title="AI Thyroid Doctor", page_icon="⚕️", layout="wide")
 
@@ -96,6 +132,18 @@ if submit:
     }
     
     input_df = pd.DataFrame(data_dict)
+
+    # After showing st.success or st.error
+    result_text = "POSITIVE (Risk Detected)" if prob > 0.5 else "NEGATIVE (Healthy)"
+    
+    pdf_file = generate_pdf(age, sex, prob, result_text)
+    
+    st.download_button(
+        label="📄 Download Medical Report (PDF)",
+        data=pdf_file,
+        file_name=f"Thyroid_Report_{age}.pdf",
+        mime="application/pdf"
+    )
     
     # Scale numerical columns
     num_cols = ['age', 'TSH', 'T3', 'TT4', 'T4U', 'FTI']
