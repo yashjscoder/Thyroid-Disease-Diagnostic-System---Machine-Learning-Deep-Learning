@@ -91,12 +91,18 @@ model, scaler = load_assets()
 
 # 3. UI Header
 st.title("⚕️ Virtual Thyroid Diagnostic System")
-if model is None:
-    st.error("⚠️ Model Files Missing in current directory!")
-    st.stop()
 
-st.divider()
+# Custom branding with LinkedIn link
+st.markdown("""
+    <div style="font-family: 'Courier New', Courier, monospace; font-style: italic; font-size: 16px; color: #555;">
+        by Yash Vishnoi 
+        <a href="https://www.linkedin.com/in/yash-vishnoi-22456a291/" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="18" height="18" style="vertical-align: middle; margin-left: 5px;">
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
 
+st.write("Professional AI tool for thyroid risk assessment based on clinical markers.")
 # 4. Input Form
 with st.form("medical_form"):
     st.subheader("Patient Clinical Data")
