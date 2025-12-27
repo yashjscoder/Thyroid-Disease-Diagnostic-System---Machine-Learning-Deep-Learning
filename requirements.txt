@@ -5,3 +5,5 @@ xgboost
 joblib
 scikit-learn
 reportlab
+matplotlib
+seaborn

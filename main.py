@@ -7,7 +7,8 @@ import os
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 # --- PDF GENERATION FUNCTION ---
 def generate_pdf(age, sex, prob, result_text):
     buffer = BytesIO()
@@ -39,6 +40,20 @@ def generate_pdf(age, sex, prob, result_text):
     p.save()
     buffer.seek(0)
     return buffer
+
+# function to plot feature importance
+def plot_importance(model, input_df):
+    # Get feature importance scores from XGBoost
+    importance = model.get_score(importance_type='weight')
+    
+    # Sort and take top 10
+    sorted_importance = dict(sorted(importance.items(), key=lambda item: item[1], reverse=True)[:10])
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=list(sorted_importance.values()), y=list(sorted_importance.keys()), ax=ax, palette='viridis')
+    plt.title("Top Factors Influencing This Diagnosis")
+    plt.xlabel("Impact Score")
+    return fig
 
 # 1. Page Configuration
 st.set_page_config(page_title="AI Thyroid Doctor", page_icon="⚕️", layout="wide")
@@ -119,6 +134,13 @@ if submit:
         res_text = "NEGATIVE (Healthy)"
         st.success(f"### Result: {res_text}")
         st.write(f"Confidence Level: **{(1-prob):.2%}**")
+
+     # Inside 'if submit:' block, after showing the result text
+    st.subheader("📊 Diagnostic Analysis")
+    st.write("This chart shows which clinical markers most influenced the AI's decision for this specific patient.")
+    
+    importance_fig = plot_importance(model, input_df)
+    st.pyplot(importance_fig)
 
     # --- STEP D: Generate PDF (Now prob and res_text exist!) ---
     pdf_file = generate_pdf(age, sex, prob, res_text)
