@@ -14,6 +14,10 @@ This project focuses on building and evaluating machine learning classification 
 | **Visualization** | Matplotlib, Seaborn | Generating model comparison and feature importance plots. |
 | **Environment** | Jupyter Notebook/IDE | Interactive development and execution. |
 
+## 2.B Screenshots
+
+![alt text](<Screenshot 2025-12-28 042408.png>) ![alt text](<Screenshot 2025-12-28 042425.png>) ![alt text](<Screenshot 2025-12-28 042414.png>) ![alt text](<Screenshot 2025-12-28 042326.png>)
+
 ## 3. Data Source and Initial State
 
 * **Dataset:** `thyroid.csv` (UCI Thyroid Disease Data Set)
@@ -42,6 +46,7 @@ The project followed a standard, sequential machine learning pipeline, focusing 
 ### 4.2. Model Training
 
 Two different classification algorithms were chosen for baseline comparison:
+
 
 1.  **Decision Tree Classifier:** Trained with a maximum depth of `3` to prioritize interpretability and prevent overfitting.
 2.  **K-Nearest Neighbors (K-NN):** Trained with a default number of neighbors (often `k=5`) to provide a distance-based classification baseline.
@@ -134,4 +139,47 @@ To run the diagnostic system locally:
 * **XGBoost Section:** It explains why you moved away from the simple Decision Tree (to get better results).
 * **Web Application Table:** It highlights your skills in **Full-Stack Data Science** (Model + UI + PDF generation).
 * **Structure & Usage:** This tells anyone visiting your GitHub exactly how to use your project.
+
+This is the perfect way to wrap up the project. Adding **Phase 3** shows that you didn't just build a model that gives a "Yes/No" answer, but one that is **transparent and explainable**.
+
+Add this section to the very bottom of your `README.md`. It explains the "Feature Importance" chart and why it makes your app professional.
+
+---
+
+## 9. Phase 3: Explainable AI (XAI) & Transparency
+
+The final phase focused on transforming the "Black Box" model into an **Explainable AI** system. This ensures that every diagnosis can be audited and understood by a medical professional.
+
+### 9.1. Dynamic Feature Importance Mapping
+
+The application now generates a real-time **Feature Importance Chart** for every diagnosis using the XGBoost `gain` metric.
+
+| Metric | Description |
+| --- | --- |
+| **Feature Gain** | Measures the "Information Value" each clinical marker contributes to the final decision. |
+| **Top Drivers** | Automatically identifies and ranks the top 10 markers (e.g., TSH, T3, Psych) influencing the current result. |
+| **Visualization** | Built using `Matplotlib` and `Seaborn` for high-clarity data storytelling. |
+
+### 9.2. How to Interpret the Diagnostic Chart
+
+The chart serves as a "Reasoning Map" for the AI's decision:
+
+* **The X-Axis (Gain):** Represents how much accuracy was gained by looking at that feature. Longer bars indicate that the AI relied heavily on that specific laboratory value.
+* **The Y-Axis (Clinical Markers):** Lists the patient's data points. If **TSH** is at the top, it confirms the AI is following standard medical protocols where TSH is the primary indicator of thyroid health.
+* **The "Why" Factor:** This chart answers the patient's question: *"Why did the AI give me this result?"* It shows exactly which part of their blood work or medical history triggered the diagnosis.
+
+### 9.3. Technical Implementation
+
+* **Logic:** Integrated XGBoost’s `get_score(importance_type='gain')` directly into the Streamlit UI.
+* **Library Update:** Added `matplotlib` and `seaborn` to the production environment for on-the-fly rendering.
+
+---
+
+### **Summary of your Project Evolution:**
+
+* **Phase 1:** Baseline models (Decision Tree/K-NN) and data cleaning.
+* **Phase 2:** Upgrading to XGBoost, creating the Web App, and PDF reporting.
+* **Phase 3:** Implementing **Explainable AI (XAI)** to show diagnostic reasoning.
+
+---
 
