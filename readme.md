@@ -84,3 +84,54 @@ The next phase of the project is dedicated to hyperparameter tuning and model re
 * **K-NN Tuning:** Identify the optimal number of neighbors ($k$) using a validation curve to maximize accuracy and close the gap with the Decision Tree.
 * **Decision Tree Tuning:** Test various `max_depth` values to potentially increase performance without sacrificing generalization (avoiding overfitting).
 * **Model Selection:** Retrain the best-performing algorithm (Decision Tree or tuned K-NN) with its optimal hyperparameters for the final result.
+
+
+---
+
+## 7. Phase 2: Advanced Modeling & Deployment
+
+After establishing the baseline, the project was scaled up using a gradient boosting framework and a production-ready interface.
+
+### 7.1. Model Upgrade (XGBoost)
+
+To improve upon the 67% accuracy of the Decision Tree, the model was upgraded to **XGBoost (Extreme Gradient Boosting)**.
+
+* **New Algorithm:** XGBoost Classifier.
+* **Feature Engineering:** Expanded feature set to 20 clinical markers, including scaled numerical values for TSH, T3, TT4, T4U, and FTI.
+* **Result:** The model achieved significantly higher precision and recall compared to the baseline models.
+
+### 7.2. Interactive Web Application
+
+A professional-grade web interface was developed to allow healthcare providers to interact with the model in real-time.
+
+| Feature | Description |
+| --- | --- |
+| **Framework** | **Streamlit** (Python-based web framework). |
+| **Real-time Inputs** | 12+ clinical inputs including age, sex, and laboratory blood levels (TSH, T3, etc.). |
+| **Instant Diagnosis** | Automated prediction with a visual confidence score (Probability percentage). |
+| **Report Generation** | Integration with **ReportLab** to generate a downloadable PDF Medical Report for patients. |
+
+### 7.3. Project Structure
+
+The final deployment includes the following core files:
+
+* `main.py`: The Streamlit web application logic.
+* `thyroid_model.json`: The trained XGBoost model "brain."
+* `scaler.joblib`: The numerical scaler used to normalize patient data.
+* `requirements.txt`: List of dependencies (XGBoost, Streamlit, ReportLab, etc.).
+
+## 8. Usage
+
+To run the diagnostic system locally:
+
+1. Install dependencies: `pip install -r requirements.txt`
+2. Launch the app: `streamlit run main.py`
+
+---
+
+### **What I added and why:**
+
+* **XGBoost Section:** It explains why you moved away from the simple Decision Tree (to get better results).
+* **Web Application Table:** It highlights your skills in **Full-Stack Data Science** (Model + UI + PDF generation).
+* **Structure & Usage:** This tells anyone visiting your GitHub exactly how to use your project.
+
